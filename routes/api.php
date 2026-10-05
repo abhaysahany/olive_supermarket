@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\SubCategoryController;
 use App\Http\Middleware\IsAdmin;
 
 Route::prefix('v1')->group(function () {
@@ -15,6 +16,7 @@ Route::prefix('v1')->group(function () {
     Route::prefix('auth')->group(function () {
         Route::post('/register', [AuthController::class, 'register']);
         Route::post('/login', [AuthController::class, 'login']);
+        Route::post('/social-login', [AuthController::class, 'socialLogin']);
         Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
         Route::post('/reset-password', [AuthController::class, 'resetPassword']);
     });
@@ -22,6 +24,8 @@ Route::prefix('v1')->group(function () {
     // Public Shop Routes
     Route::get('/categories', [CategoryController::class, 'index']);
     Route::get('/categories/{category}', [CategoryController::class, 'show']);
+    Route::get('/subcategories', [SubCategoryController::class, 'index']);
+    Route::get('/subcategories/{subCategory}', [SubCategoryController::class, 'show']);
     Route::get('/products', [ProductController::class, 'index']);
     Route::get('/products/{product}', [ProductController::class, 'show']);
 
@@ -41,6 +45,10 @@ Route::prefix('v1')->group(function () {
             Route::post('/categories', [CategoryController::class, 'store']);
             Route::put('/categories/{category}', [CategoryController::class, 'update']);
             Route::delete('/categories/{category}', [CategoryController::class, 'destroy']);
+
+            Route::post('/subcategories', [SubCategoryController::class, 'store']);
+            Route::put('/subcategories/{subCategory}', [SubCategoryController::class, 'update']);
+            Route::delete('/subcategories/{subCategory}', [SubCategoryController::class, 'destroy']);
 
             Route::post('/products', [ProductController::class, 'store']);
             Route::put('/products/{product}', [ProductController::class, 'update']);

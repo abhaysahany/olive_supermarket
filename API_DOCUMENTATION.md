@@ -37,6 +37,18 @@ Example: `Authorization: Bearer <your_token_here>`
   }
   ```
 
+### Social Login / Register (Google / Facebook)
+- **Endpoint:** `/auth/social-login`
+- **Method:** `POST`
+- **Description:** Send the `access_token` you receive from Google or Facebook OAuth on the client side. The API will verify it and log the user in, or create a new user account if one doesn't exist.
+- **Request Body:**
+  ```json
+  {
+      "provider": "google", // or "facebook"
+      "token": "your_access_token_from_google_or_facebook"
+  }
+  ```
+
 ### Forgot Password
 - **Endpoint:** `/auth/forgot-password`
 - **Method:** `POST`
@@ -77,6 +89,14 @@ These endpoints do NOT require authentication. Users can browse categories and p
 
 ### Get Single Category
 - **Endpoint:** `/categories/{id}`
+- **Method:** `GET`
+
+### Get All SubCategories
+- **Endpoint:** `/subcategories`
+- **Method:** `GET`
+
+### Get Single SubCategory
+- **Endpoint:** `/subcategories/{id}`
 - **Method:** `GET`
 
 ### Get All Products
@@ -130,13 +150,37 @@ These endpoints require the user to be authenticated and have the `admin` role.
 
 ### Manage Categories
 - **POST** `/admin/categories`
-  - Body (JSON): `{"name": "Snacks", "description": "Tasty snacks", "image": "url"}`
+  - Body (JSON): `{"name": "Fruits", "description": "Fresh fruits", "image": "url"}`
 - **PUT** `/admin/categories/{id}`
 - **DELETE** `/admin/categories/{id}`
 
+### Manage SubCategories
+- **POST** `/admin/subcategories`
+  - Body (JSON): `{"category_id": 1, "name": "Apples", "slug": "apples-pears", "description": "All apples"}`
+- **PUT** `/admin/subcategories/{id}`
+- **DELETE** `/admin/subcategories/{id}`
+
 ### Manage Products
 - **POST** `/admin/products`
-  - Body (JSON): `{"category_id": 1, "name": "Chips", "price": 10.50, "stock": 100}`
+  - Body (JSON): 
+  ```json
+  {
+      "category_id": 1, 
+      "sub_category_id": 2, 
+      "name": "Fuji Apples", 
+      "slug": "fuji-apples",
+      "size": "1 kg pack",
+      "short_size": "1 kg",
+      "price": 3.49, 
+      "old_price": 4.30,
+      "save_pct": 20,
+      "stock": 100,
+      "emoji": "🍎",
+      "tint": "peach",
+      "tag": "Fruits",
+      "local": true
+  }
+  ```
 - **PUT** `/admin/products/{id}`
 - **DELETE** `/admin/products/{id}`
 
