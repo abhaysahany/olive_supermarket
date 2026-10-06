@@ -50,6 +50,44 @@ Guest cart operations can pass a header: `X-Session-ID: <uuid>`
   }
   ```
 
+<<<<<<< HEAD
+=======
+### Social Login / Register (Google / Facebook)
+- **Endpoint:** `/auth/social-login`
+- **Method:** `POST`
+- **Description:** Send the `access_token` you receive from Google or Facebook OAuth on the client side. The API will verify it and log the user in, or create a new user account if one doesn't exist.
+- **Request Body:**
+  ```json
+  {
+      "provider": "google", // or "facebook"
+      "token": "your_access_token_from_google_or_facebook"
+  }
+  ```
+
+### Forgot Password
+- **Endpoint:** `/auth/forgot-password`
+- **Method:** `POST`
+- **Request Body:**
+  ```json
+  {
+      "email": "john@example.com"
+  }
+  ```
+
+### Reset Password
+- **Endpoint:** `/auth/reset-password`
+- **Method:** `POST`
+- **Request Body:**
+  ```json
+  {
+      "token": "token_received_in_email",
+      "email": "john@example.com",
+      "password": "newpassword123",
+      "password_confirmation": "newpassword123"
+  }
+  ```
+
+>>>>>>> c657a9f198e4bd84e229150af1299d70dfb7de9f
 ### Logout (Requires Auth)
 - **POST** `/auth/logout`
 
@@ -66,10 +104,32 @@ Guest cart operations can pass a header: `X-Session-ID: <uuid>`
 * **GET** `/subcategories` *(Optional Query: `?category_id=1`)*
 * **GET** `/subcategories/{id}` (Returns subcategory with associated products)
 
+<<<<<<< HEAD
 ### Product Catalog
 * **GET** `/products`
   * **Query Filters:** `?search=apples&subcategory_id=1&is_organic=true&min_price=2&max_price=15&sort_by=price_asc&per_page=20`
 * **GET** `/products/{id}`
+=======
+### Get Single Category
+- **Endpoint:** `/categories/{id}`
+- **Method:** `GET`
+
+### Get All SubCategories
+- **Endpoint:** `/subcategories`
+- **Method:** `GET`
+
+### Get Single SubCategory
+- **Endpoint:** `/subcategories/{id}`
+- **Method:** `GET`
+
+### Get All Products
+- **Endpoint:** `/products`
+- **Method:** `GET`
+
+### Get Single Product
+- **Endpoint:** `/products/{id}`
+- **Method:** `GET`
+>>>>>>> c657a9f198e4bd84e229150af1299d70dfb7de9f
 
 ---
 
@@ -307,6 +367,7 @@ Converts the customer's active Cart or explicit item list into a confirmed order
 * **PUT** `/admin/subcategories/{id}`
 * **DELETE** `/admin/subcategories/{id}`
 
+<<<<<<< HEAD
 ### Product Inventory Management
 * **POST** `/admin/products`
 * **PUT** `/admin/products/{id}`
@@ -315,6 +376,43 @@ Converts the customer's active Cart or explicit item list into a confirmed order
 ### Supermarket Orders Dispatch
 * **GET** `/admin/orders` *(Query filters: `?order_status=pending`)*
 * **PATCH** `/admin/orders/{id}/status`
+=======
+### Manage Categories
+- **POST** `/admin/categories`
+  - Body (JSON): `{"name": "Fruits", "description": "Fresh fruits", "image": "url"}`
+- **PUT** `/admin/categories/{id}`
+- **DELETE** `/admin/categories/{id}`
+
+### Manage SubCategories
+- **POST** `/admin/subcategories`
+  - Body (JSON): `{"category_id": 1, "name": "Apples", "slug": "apples-pears", "description": "All apples"}`
+- **PUT** `/admin/subcategories/{id}`
+- **DELETE** `/admin/subcategories/{id}`
+
+### Manage Products
+- **POST** `/admin/products`
+  - Body (JSON): 
+  ```json
+  {
+      "category_id": 1, 
+      "sub_category_id": 2, 
+      "name": "Fuji Apples", 
+      "slug": "fuji-apples",
+      "size": "1 kg pack",
+      "short_size": "1 kg",
+      "price": 3.49, 
+      "old_price": 4.30,
+      "save_pct": 20,
+      "stock": 100,
+      "emoji": "🍎",
+      "tint": "peach",
+      "tag": "Fruits",
+      "local": true
+  }
+  ```
+- **PUT** `/admin/products/{id}`
+- **DELETE** `/admin/products/{id}`
+>>>>>>> c657a9f198e4bd84e229150af1299d70dfb7de9f
 
 ### Live Delivery Courier Dispatch
 * **GET** `/admin/deliveries`

@@ -10,6 +10,7 @@ class Product extends Model
     use HasFactory;
 
     protected $fillable = [
+<<<<<<< HEAD
         'subcategory_id',
         'sku',
         'upc_barcode',
@@ -30,6 +31,12 @@ class Product extends Model
         'is_gluten_free',
         'is_perishable',
         'status'
+=======
+        'category_id', 'sub_category_id', 'name', 'slug', 'description', 
+        'size', 'short_size', 'price', 'old_price', 'save_pct', 
+        'stock', 'image', 'emoji', 'tint', 'tag', 'rating', 
+        'reviews_count', 'local'
+>>>>>>> c657a9f198e4bd84e229150af1299d70dfb7de9f
     ];
 
     protected function casts(): array
@@ -56,5 +63,10 @@ class Product extends Model
     public function orderItems()
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    public function subCategory()
+    {
+        return $this->belongsTo(SubCategory::class);
     }
 }

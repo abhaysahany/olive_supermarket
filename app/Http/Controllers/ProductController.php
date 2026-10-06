@@ -12,6 +12,7 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
+<<<<<<< HEAD
         $query = Product::with('subcategory.category');
 
         // Subcategory filter
@@ -83,6 +84,9 @@ class ProductController extends Controller
         };
 
         return response()->json($query->paginate($request->query('per_page', 20)), 200);
+=======
+        return response()->json(Product::with(['category', 'subCategory'])->get(), 200);
+>>>>>>> c657a9f198e4bd84e229150af1299d70dfb7de9f
     }
 
     /**
@@ -91,6 +95,7 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
+<<<<<<< HEAD
             'subcategory_id' => 'required|exists:subcategories,id',
             'sku' => 'required|string|max:50|unique:products,sku',
             'upc_barcode' => 'nullable|string|max:20',
@@ -112,6 +117,26 @@ class ProductController extends Controller
             'is_gluten_free' => 'nullable|boolean',
             'is_perishable' => 'nullable|boolean',
             'status' => 'nullable|in:active,inactive,out_of_stock'
+=======
+            'category_id' => 'required|exists:categories,id',
+            'sub_category_id' => 'nullable|exists:sub_categories,id',
+            'name' => 'required|string|max:255',
+            'slug' => 'nullable|string|unique:products,slug',
+            'description' => 'nullable|string',
+            'size' => 'nullable|string',
+            'short_size' => 'nullable|string',
+            'price' => 'required|numeric|min:0',
+            'old_price' => 'nullable|numeric|min:0',
+            'save_pct' => 'nullable|integer',
+            'stock' => 'required|integer|min:0',
+            'image' => 'nullable|string',
+            'emoji' => 'nullable|string',
+            'tint' => 'nullable|string',
+            'tag' => 'nullable|string',
+            'rating' => 'nullable|numeric',
+            'reviews_count' => 'nullable|integer',
+            'local' => 'boolean'
+>>>>>>> c657a9f198e4bd84e229150af1299d70dfb7de9f
         ]);
 
         $product = Product::create($validated);
@@ -123,7 +148,11 @@ class ProductController extends Controller
      */
     public function show(Product $product)
     {
+<<<<<<< HEAD
         return response()->json($product->load('subcategory.category'), 200);
+=======
+        return response()->json($product->load(['category', 'subCategory']), 200);
+>>>>>>> c657a9f198e4bd84e229150af1299d70dfb7de9f
     }
 
     /**
@@ -132,6 +161,7 @@ class ProductController extends Controller
     public function update(Request $request, Product $product)
     {
         $validated = $request->validate([
+<<<<<<< HEAD
             'subcategory_id' => 'sometimes|exists:subcategories,id',
             'sku' => 'sometimes|string|max:50|unique:products,sku,' . $product->id,
             'upc_barcode' => 'nullable|string|max:20',
@@ -153,6 +183,26 @@ class ProductController extends Controller
             'is_gluten_free' => 'nullable|boolean',
             'is_perishable' => 'nullable|boolean',
             'status' => 'nullable|in:active,inactive,out_of_stock'
+=======
+            'category_id' => 'sometimes|exists:categories,id',
+            'sub_category_id' => 'nullable|exists:sub_categories,id',
+            'name' => 'sometimes|string|max:255',
+            'slug' => 'nullable|string|unique:products,slug,' . $product->id,
+            'description' => 'nullable|string',
+            'size' => 'nullable|string',
+            'short_size' => 'nullable|string',
+            'price' => 'sometimes|numeric|min:0',
+            'old_price' => 'nullable|numeric|min:0',
+            'save_pct' => 'nullable|integer',
+            'stock' => 'sometimes|integer|min:0',
+            'image' => 'nullable|string',
+            'emoji' => 'nullable|string',
+            'tint' => 'nullable|string',
+            'tag' => 'nullable|string',
+            'rating' => 'nullable|numeric',
+            'reviews_count' => 'nullable|integer',
+            'local' => 'boolean'
+>>>>>>> c657a9f198e4bd84e229150af1299d70dfb7de9f
         ]);
 
         $product->update($validated);

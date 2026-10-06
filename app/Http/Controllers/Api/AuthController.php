@@ -10,6 +10,7 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Support\Str;
+use Laravel\Socialite\Facades\Socialite;
 
 class AuthController extends Controller
 {
@@ -103,4 +104,45 @@ class AuthController extends Controller
                     ? response()->json(['message' => __($status)])
                     : response()->json(['email' => __($status)], 400);
     }
+
+    public function socialLogin(Request $request)
+    {
+        $request->validate([
+            'provider' => 'required|in:google,facebook',
+            'token' => 'required|string',
+        ]);
+
+        try {
+            $providerUser = Socialite::driver($request->provider)->stateless()->userFromToken($request->token);
+            
+            $user = User::firstOrCreate(
+                ['email' => $providerUser->getEmail()],
+                [
+                    'name' => $providerUser->getName(),
+                    'provider' => $request->provider,
+                    'provider_id' => $providerUser->getId(),
+                    'role' => 'user'
+                ]
+            );
+
+            if (!$user->provider) {
+                $user->update([
+                    'provider' => $request->provider,
+                    'provider_id' => $providerUser->getId(),
+                ]);
+            }
+
+            $token = $user->createToken('auth_token')->plainTextToken;
+
+            return response()->json([
+                'message' => 'Login successful',
+                'user' => $user,
+                'token' => $token
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Invalid token or provider'], 401);
+        }
+    }
 }
+
