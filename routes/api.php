@@ -12,6 +12,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\DeliveryController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\DeliverySlotController;
+use App\Http\Controllers\SubCategoryController;
 use App\Http\Middleware\IsAdmin;
 
 Route::prefix('v1')->group(function () {
@@ -19,6 +20,7 @@ Route::prefix('v1')->group(function () {
     Route::prefix('auth')->group(function () {
         Route::post('/register', [AuthController::class, 'register']);
         Route::post('/login', [AuthController::class, 'login']);
+        Route::post('/social-login', [AuthController::class, 'socialLogin']);
         Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
         Route::post('/reset-password', [AuthController::class, 'resetPassword']);
     });
@@ -31,6 +33,8 @@ Route::prefix('v1')->group(function () {
     Route::get('/subcategories', [SubcategoryController::class, 'index']);
     Route::get('/subcategories/{subcategory}', [SubcategoryController::class, 'show']);
 
+    Route::get('/subcategories', [SubCategoryController::class, 'index']);
+    Route::get('/subcategories/{subCategory}', [SubCategoryController::class, 'show']);
     Route::get('/products', [ProductController::class, 'index']);
     Route::get('/products/{product}', [ProductController::class, 'show']);
 
@@ -73,6 +77,10 @@ Route::prefix('v1')->group(function () {
             Route::delete('/subcategories/{subcategory}', [SubcategoryController::class, 'destroy']);
 
             // Admin Product Management
+            Route::post('/subcategories', [SubCategoryController::class, 'store']);
+            Route::put('/subcategories/{subCategory}', [SubCategoryController::class, 'update']);
+            Route::delete('/subcategories/{subCategory}', [SubCategoryController::class, 'destroy']);
+
             Route::post('/products', [ProductController::class, 'store']);
             Route::put('/products/{product}', [ProductController::class, 'update']);
             Route::delete('/products/{product}', [ProductController::class, 'destroy']);

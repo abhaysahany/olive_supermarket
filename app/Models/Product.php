@@ -30,6 +30,10 @@ class Product extends Model
         'is_gluten_free',
         'is_perishable',
         'status'
+        'category_id', 'sub_category_id', 'name', 'slug', 'description', 
+        'size', 'short_size', 'price', 'old_price', 'save_pct', 
+        'stock', 'image', 'emoji', 'tint', 'tag', 'rating', 
+        'reviews_count', 'local'
     ];
 
     protected function casts(): array
@@ -56,5 +60,10 @@ class Product extends Model
     public function orderItems()
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    public function subCategory()
+    {
+        return $this->belongsTo(SubCategory::class);
     }
 }

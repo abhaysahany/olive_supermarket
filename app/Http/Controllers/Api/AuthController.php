@@ -9,7 +9,9 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Laravel\Socialite\Facades\Socialite;
 
 class AuthController extends Controller
 {
@@ -19,25 +21,41 @@ class AuthController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'phone' => 'nullable|string|max:20',
-            'password' => 'required|string|min:8|confirmed',
-            'role' => 'sometimes|in:admin,user'
+            'password' => 'required|string|min:8|confirmed'
         ]);
 
-        $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'phone' => $validated['phone'] ?? null,
-            'password' => Hash::make($validated['password']),
-            'role' => $validated['role'] ?? 'user'
-        ]);
+        $validated['name'] = trim($validated['name']);
+        $validated['email'] = strtolower(trim($validated['email']));
+        $validated['phone'] = ! empty($validated['phone']) ? trim($validated['phone']) : null;
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+        try {
+            $user = User::create([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'phone' => $validated['phone'],
+                'password' => Hash::make($validated['password']),
+                'role' => 'user'
+            ]);
 
-        return response()->json([
-            'message' => 'User registered successfully',
-            'user' => $user,
-            'token' => $token
-        ], 201);
+            $user->makeHidden(['password', 'remember_token']);
+
+            $token = $user->createToken('auth_token')->plainTextToken;
+
+            return response()->json([
+                'message' => 'User registered successfully',
+                'user' => $user,
+                'token' => $token
+            ], 201);
+        } catch (\Throwable $e) {
+            Log::error('User registration failed: ' . $e->getMessage(), [
+                'email' => $validated['email'],
+                'exception' => $e,
+            ]);
+
+            return response()->json([
+                'message' => 'Registration failed'
+            ], 500);
+        }
     }
 
     public function login(Request $request)
@@ -47,13 +65,21 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        $user = User::where('email', $validated['email'])->first();
+        $validated['email'] = strtolower(trim($validated['email']));
+
+        $user = User::whereRaw('LOWER(email) = ?', [$validated['email']])->first();
 
         if (! $user || ! Hash::check($validated['password'], $user->password)) {
+            Log::error('Login failed: invalid credentials', [
+                'email' => $validated['email'],
+            ]);
+
             return response()->json([
                 'message' => 'Invalid credentials'
             ], 401);
         }
+
+        $user->makeHidden(['password', 'remember_token']);
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
@@ -66,7 +92,15 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
+        $user = $request->user();
+
+        if (! $user) {
+            return response()->json([
+                'message' => 'Unauthenticated'
+            ], 401);
+        }
+
+        $user->currentAccessToken()?->delete();
 
         return response()->json([
             'message' => 'Logged out successfully'
@@ -75,32 +109,122 @@ class AuthController extends Controller
 
     public function forgotPassword(Request $request)
     {
-        $request->validate(['email' => 'required|email']);
-        $status = Password::sendResetLink($request->only('email'));
+        $email = strtolower(trim($request->input('email')));
+        $request->merge(['email' => $email]);
 
-        return $status === Password::RESET_LINK_SENT
-                    ? response()->json(['message' => __($status)])
-                    : response()->json(['email' => __($status)], 400);
+        $request->validate([
+            'email' => ['required', 'email', 'exists:users,email'],
+        ]);
+
+        try {
+            $status = Password::sendResetLink(['email' => $email]);
+
+            if ($status !== Password::RESET_LINK_SENT) {
+                Log::error('Password reset link sending failed', [
+                    'email' => $email,
+                    'status' => $status,
+                ]);
+
+                return response()->json(['email' => __($status)], 400);
+            }
+
+            return response()->json(['message' => __($status)]);
+        } catch (\Throwable $e) {
+            Log::error('Password reset link sending exception', [
+                'email' => $email,
+                'exception' => $e,
+            ]);
+
+            return response()->json(['message' => 'Unable to send password reset link'], 500);
+        }
     }
 
     public function resetPassword(Request $request)
     {
+        $email = strtolower(trim($request->input('email')));
+        $request->merge(['email' => $email]);
+
         $request->validate([
             'token' => 'required',
-            'email' => 'required|email',
+            'email' => ['required', 'email', 'exists:users,email'],
             'password' => 'required|min:8|confirmed',
         ]);
 
-        $status = Password::reset($request->only('email', 'password', 'password_confirmation', 'token'), function ($user, $password) {
-            $user->forceFill([
-                'password' => Hash::make($password)
-            ])->setRememberToken(Str::random(60));
-            $user->save();
-            event(new PasswordReset($user));
-        });
+        try {
+            $status = Password::reset($request->only('email', 'password', 'password_confirmation', 'token'), function ($user, $password) {
+                $user->forceFill([
+                    'password' => Hash::make($password)
+                ])->setRememberToken(Str::random(60));
+                $user->save();
+                event(new PasswordReset($user));
+            });
 
-        return $status === Password::PASSWORD_RESET
-                    ? response()->json(['message' => __($status)])
-                    : response()->json(['email' => __($status)], 400);
+            if ($status !== Password::PASSWORD_RESET) {
+                Log::error('Password reset failed', [
+                    'email' => $email,
+                    'status' => $status,
+                    'token' => $request->input('token'),
+                ]);
+
+                return response()->json(['message' => __($status)], 400);
+            }
+
+            return response()->json(['message' => __($status)]);
+        } catch (\Throwable $e) {
+            Log::error('Password reset exception', [
+                'email' => $email,
+                'token' => $request->input('token'),
+                'exception' => $e,
+            ]);
+
+            return response()->json(['message' => 'Unable to reset password'], 500);
+        }
+    }
+
+    public function socialLogin(Request $request)
+    {
+        $request->validate([
+            'provider' => 'required|in:google,facebook',
+            'token' => 'required|string',
+        ]);
+
+        try {
+            $provider = Socialite::driver($request->provider);
+
+            if (! $provider instanceof \Laravel\Socialite\Two\AbstractProvider) {
+                return response()->json(['message' => 'Unsupported provider'], 400);
+            }
+
+            $providerUser = $provider->userFromToken($request->token);
+
+            $user = User::firstOrCreate(
+                ['email' => $providerUser->getEmail()],
+                [
+                    'name' => $providerUser->getName(),
+                    'provider' => $request->provider,
+                    'provider_id' => $providerUser->getId(),
+                    'role' => 'user'
+                ]
+            );
+
+            if (! $user->provider) {
+                $user->update([
+                    'provider' => $request->provider,
+                    'provider_id' => $providerUser->getId(),
+                ]);
+            }
+
+            $token = $user->createToken('auth_token')->plainTextToken;
+
+            return response()->json([
+                'message' => 'Login successful',
+                'user' => $user,
+                'token' => $token
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Social login failed: ' . $e->getMessage());
+
+            return response()->json(['message' => 'Invalid token or provider'], 401);
+        }
     }
 }

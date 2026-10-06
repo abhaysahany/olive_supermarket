@@ -35,4 +35,16 @@ return [
         ],
     ],
 
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID', 'dummy'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET', 'dummy'),
+        'redirect' => env('GOOGLE_REDIRECT_URI', 'http://localhost'),
+    ],
+
+    'facebook' => [
+        'client_id' => env('FACEBOOK_CLIENT_ID', 'dummy'),
+        'client_secret' => env('FACEBOOK_CLIENT_SECRET', 'dummy'),
+        'redirect' => env('FACEBOOK_REDIRECT_URI', 'http://localhost'),
+    ],
+
 ];
