@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
@@ -12,22 +13,27 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
-<<<<<<< HEAD
-        $query = Product::with('subcategory.category');
+        $query = Product::with(['category', 'subcategory.category']);
 
         // Subcategory filter
         if ($request->filled('subcategory_id')) {
             $query->where('subcategory_id', $request->query('subcategory_id'));
+        } elseif ($request->filled('sub_category_id')) {
+            $query->where('subcategory_id', $request->query('sub_category_id'));
         }
 
         // Category filter
         if ($request->filled('category_id')) {
-            $query->whereHas('subcategory', function ($q) use ($request) {
-                $q->where('category_id', $request->query('category_id'));
+            $categoryId = $request->query('category_id');
+            $query->where(function ($q) use ($categoryId) {
+                $q->where('category_id', $categoryId)
+                  ->orWhereHas('subcategory', function ($sq) use ($categoryId) {
+                      $sq->where('category_id', $categoryId);
+                  });
             });
         }
 
-        // Search by keyword, brand, or SKU/UPC
+        // Search by keyword, brand, SKU, UPC, name, slug
         if ($request->filled('search')) {
             $search = $request->query('search');
             $query->where(function ($q) use ($search) {
@@ -35,11 +41,15 @@ class ProductController extends Controller
                   ->orWhere('brand', 'like', "%{$search}%")
                   ->orWhere('sku', 'like', "%{$search}%")
                   ->orWhere('upc_barcode', 'like', "%{$search}%")
+                  ->orWhere('slug', 'like', "%{$search}%")
                   ->orWhere('description', 'like', "%{$search}%");
             });
         }
 
-        // Brand filter
+        // Tag / Brand filter
+        if ($request->filled('tag')) {
+            $query->where('tag', $request->query('tag'));
+        }
         if ($request->filled('brand')) {
             $query->where('brand', $request->query('brand'));
         }
@@ -57,6 +67,10 @@ class ProductController extends Controller
             $query->where('is_perishable', filter_var($request->query('is_perishable'), FILTER_VALIDATE_BOOLEAN));
         }
 
+        if ($request->has('local')) {
+            $query->where('local', filter_var($request->query('local'), FILTER_VALIDATE_BOOLEAN));
+        }
+
         // Price range filters
         if ($request->filled('min_price')) {
             $query->where('price', '>=', $request->query('min_price'));
@@ -66,11 +80,9 @@ class ProductController extends Controller
             $query->where('price', '<=', $request->query('max_price'));
         }
 
-        // Status filter (defaults to active unless specified by admin)
+        // Status filter (defaults to active unless specified)
         if ($request->filled('status')) {
             $query->where('status', $request->query('status'));
-        } else {
-            $query->where('status', 'active');
         }
 
         // Sorting
@@ -83,10 +95,11 @@ class ProductController extends Controller
             default => $query->latest(),
         };
 
+        if ($request->has('all') && filter_var($request->query('all'), FILTER_VALIDATE_BOOLEAN)) {
+            return response()->json($query->get(), 200);
+        }
+
         return response()->json($query->paginate($request->query('per_page', 20)), 200);
-=======
-        return response()->json(Product::with(['category', 'subCategory'])->get(), 200);
->>>>>>> c657a9f198e4bd84e229150af1299d70dfb7de9f
     }
 
     /**
@@ -95,52 +108,59 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-<<<<<<< HEAD
-            'subcategory_id' => 'required|exists:subcategories,id',
-            'sku' => 'required|string|max:50|unique:products,sku',
+            'category_id' => 'nullable|exists:categories,id',
+            'subcategory_id' => 'nullable|exists:subcategories,id',
+            'sub_category_id' => 'nullable|exists:subcategories,id',
+            'sku' => 'nullable|string|max:50|unique:products,sku',
             'upc_barcode' => 'nullable|string|max:20',
             'name' => 'required|string|max:255',
+            'slug' => 'nullable|string|unique:products,slug',
             'brand' => 'nullable|string|max:100',
             'description' => 'nullable|string',
             'unit_size' => 'nullable|string|max:50',
+            'size' => 'nullable|string|max:50',
+            'short_size' => 'nullable|string|max:50',
             'price' => 'required|numeric|min:0',
+            'old_price' => 'nullable|numeric|min:0',
             'sale_price' => 'nullable|numeric|min:0',
             'cost_price' => 'nullable|numeric|min:0',
+            'save_pct' => 'nullable|integer',
             'stock' => 'required|integer|min:0',
             'low_stock_threshold' => 'nullable|integer|min:0',
             'image' => 'nullable|string',
             'gallery_images' => 'nullable|array',
             'gallery_images.*' => 'string',
+            'emoji' => 'nullable|string',
+            'tint' => 'nullable|string',
+            'tag' => 'nullable|string',
+            'rating' => 'nullable|numeric',
+            'reviews_count' => 'nullable|integer',
+            'local' => 'nullable|boolean',
             'nutrition_facts' => 'nullable|array',
             'ingredients' => 'nullable|string',
             'is_organic' => 'nullable|boolean',
             'is_gluten_free' => 'nullable|boolean',
             'is_perishable' => 'nullable|boolean',
             'status' => 'nullable|in:active,inactive,out_of_stock'
-=======
-            'category_id' => 'required|exists:categories,id',
-            'sub_category_id' => 'nullable|exists:sub_categories,id',
-            'name' => 'required|string|max:255',
-            'slug' => 'nullable|string|unique:products,slug',
-            'description' => 'nullable|string',
-            'size' => 'nullable|string',
-            'short_size' => 'nullable|string',
-            'price' => 'required|numeric|min:0',
-            'old_price' => 'nullable|numeric|min:0',
-            'save_pct' => 'nullable|integer',
-            'stock' => 'required|integer|min:0',
-            'image' => 'nullable|string',
-            'emoji' => 'nullable|string',
-            'tint' => 'nullable|string',
-            'tag' => 'nullable|string',
-            'rating' => 'nullable|numeric',
-            'reviews_count' => 'nullable|integer',
-            'local' => 'boolean'
->>>>>>> c657a9f198e4bd84e229150af1299d70dfb7de9f
         ]);
 
+        if (empty($validated['subcategory_id']) && ! empty($validated['sub_category_id'])) {
+            $validated['subcategory_id'] = $validated['sub_category_id'];
+        }
+
+        if (empty($validated['sku'])) {
+            $validated['sku'] = 'SKU-' . strtoupper(Str::random(8));
+        }
+
+        if (empty($validated['slug'])) {
+            $validated['slug'] = Str::slug($validated['name']);
+        }
+
         $product = Product::create($validated);
-        return response()->json(['message' => 'Product created successfully', 'data' => $product->load('subcategory.category')], 201);
+        return response()->json([
+            'message' => 'Product created successfully',
+            'data' => $product->load(['category', 'subcategory.category'])
+        ], 201);
     }
 
     /**
@@ -148,11 +168,7 @@ class ProductController extends Controller
      */
     public function show(Product $product)
     {
-<<<<<<< HEAD
-        return response()->json($product->load('subcategory.category'), 200);
-=======
-        return response()->json($product->load(['category', 'subCategory']), 200);
->>>>>>> c657a9f198e4bd84e229150af1299d70dfb7de9f
+        return response()->json($product->load(['category', 'subcategory.category']), 200);
     }
 
     /**
@@ -161,52 +177,51 @@ class ProductController extends Controller
     public function update(Request $request, Product $product)
     {
         $validated = $request->validate([
-<<<<<<< HEAD
-            'subcategory_id' => 'sometimes|exists:subcategories,id',
+            'category_id' => 'nullable|exists:categories,id',
+            'subcategory_id' => 'nullable|exists:subcategories,id',
+            'sub_category_id' => 'nullable|exists:subcategories,id',
             'sku' => 'sometimes|string|max:50|unique:products,sku,' . $product->id,
             'upc_barcode' => 'nullable|string|max:20',
             'name' => 'sometimes|string|max:255',
+            'slug' => 'nullable|string|unique:products,slug,' . $product->id,
             'brand' => 'nullable|string|max:100',
             'description' => 'nullable|string',
             'unit_size' => 'nullable|string|max:50',
+            'size' => 'nullable|string|max:50',
+            'short_size' => 'nullable|string|max:50',
             'price' => 'sometimes|numeric|min:0',
+            'old_price' => 'nullable|numeric|min:0',
             'sale_price' => 'nullable|numeric|min:0',
             'cost_price' => 'nullable|numeric|min:0',
+            'save_pct' => 'nullable|integer',
             'stock' => 'sometimes|integer|min:0',
             'low_stock_threshold' => 'nullable|integer|min:0',
             'image' => 'nullable|string',
             'gallery_images' => 'nullable|array',
             'gallery_images.*' => 'string',
+            'emoji' => 'nullable|string',
+            'tint' => 'nullable|string',
+            'tag' => 'nullable|string',
+            'rating' => 'nullable|numeric',
+            'reviews_count' => 'nullable|integer',
+            'local' => 'nullable|boolean',
             'nutrition_facts' => 'nullable|array',
             'ingredients' => 'nullable|string',
             'is_organic' => 'nullable|boolean',
             'is_gluten_free' => 'nullable|boolean',
             'is_perishable' => 'nullable|boolean',
             'status' => 'nullable|in:active,inactive,out_of_stock'
-=======
-            'category_id' => 'sometimes|exists:categories,id',
-            'sub_category_id' => 'nullable|exists:sub_categories,id',
-            'name' => 'sometimes|string|max:255',
-            'slug' => 'nullable|string|unique:products,slug,' . $product->id,
-            'description' => 'nullable|string',
-            'size' => 'nullable|string',
-            'short_size' => 'nullable|string',
-            'price' => 'sometimes|numeric|min:0',
-            'old_price' => 'nullable|numeric|min:0',
-            'save_pct' => 'nullable|integer',
-            'stock' => 'sometimes|integer|min:0',
-            'image' => 'nullable|string',
-            'emoji' => 'nullable|string',
-            'tint' => 'nullable|string',
-            'tag' => 'nullable|string',
-            'rating' => 'nullable|numeric',
-            'reviews_count' => 'nullable|integer',
-            'local' => 'boolean'
->>>>>>> c657a9f198e4bd84e229150af1299d70dfb7de9f
         ]);
 
+        if (empty($validated['subcategory_id']) && ! empty($validated['sub_category_id'])) {
+            $validated['subcategory_id'] = $validated['sub_category_id'];
+        }
+
         $product->update($validated);
-        return response()->json(['message' => 'Product updated successfully', 'data' => $product->load('subcategory.category')], 200);
+        return response()->json([
+            'message' => 'Product updated successfully',
+            'data' => $product->load(['category', 'subcategory.category'])
+        ], 200);
     }
 
     /**

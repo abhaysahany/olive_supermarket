@@ -6,16 +6,12 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\SubcategoryController;
+use App\Http\Controllers\SubCategoryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\OrderController;
-<<<<<<< HEAD
 use App\Http\Controllers\DeliveryController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\DeliverySlotController;
-=======
-use App\Http\Controllers\SubCategoryController;
->>>>>>> c657a9f198e4bd84e229150af1299d70dfb7de9f
 use App\Http\Middleware\IsAdmin;
 
 Route::prefix('v1')->group(function () {
@@ -31,16 +27,8 @@ Route::prefix('v1')->group(function () {
     // Public Shop Browsing Routes
     Route::get('/categories', [CategoryController::class, 'index']);
     Route::get('/categories/{category}', [CategoryController::class, 'show']);
-<<<<<<< HEAD
-    Route::get('/categories/{category}/subcategories', [SubcategoryController::class, 'getByCategory']);
-
-    Route::get('/subcategories', [SubcategoryController::class, 'index']);
-    Route::get('/subcategories/{subcategory}', [SubcategoryController::class, 'show']);
-
-=======
     Route::get('/subcategories', [SubCategoryController::class, 'index']);
     Route::get('/subcategories/{subCategory}', [SubCategoryController::class, 'show']);
->>>>>>> c657a9f198e4bd84e229150af1299d70dfb7de9f
     Route::get('/products', [ProductController::class, 'index']);
     Route::get('/products/{product}', [ProductController::class, 'show']);
 
@@ -77,19 +65,12 @@ Route::prefix('v1')->group(function () {
             Route::put('/categories/{category}', [CategoryController::class, 'update']);
             Route::delete('/categories/{category}', [CategoryController::class, 'destroy']);
 
-<<<<<<< HEAD
             // Admin Subcategory Management
-            Route::post('/subcategories', [SubcategoryController::class, 'store']);
-            Route::put('/subcategories/{subcategory}', [SubcategoryController::class, 'update']);
-            Route::delete('/subcategories/{subcategory}', [SubcategoryController::class, 'destroy']);
-
-            // Admin Product Management
-=======
             Route::post('/subcategories', [SubCategoryController::class, 'store']);
             Route::put('/subcategories/{subCategory}', [SubCategoryController::class, 'update']);
             Route::delete('/subcategories/{subCategory}', [SubCategoryController::class, 'destroy']);
 
->>>>>>> c657a9f198e4bd84e229150af1299d70dfb7de9f
+            // Admin Product Management
             Route::post('/products', [ProductController::class, 'store']);
             Route::put('/products/{product}', [ProductController::class, 'update']);
             Route::delete('/products/{product}', [ProductController::class, 'destroy']);
