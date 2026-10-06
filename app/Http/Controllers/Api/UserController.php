@@ -9,8 +9,16 @@ class UserController extends Controller
 {
     public function profile(Request $request)
     {
+        $user = $request->user();
+
+        if (! $user) {
+            return response()->json([
+                'message' => 'Unauthenticated.'
+            ], 401);
+        }
+
         return response()->json([
-            'user' => $request->user()
+            'user' => $user
         ]);
     }
 }
