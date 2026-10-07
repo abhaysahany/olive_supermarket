@@ -12,6 +12,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\DeliveryController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\DeliverySlotController;
+>>>>>>>>> Temporary merge branch 2
 use App\Http\Middleware\IsAdmin;
 
 Route::prefix('v1')->group(function () {
@@ -27,8 +28,16 @@ Route::prefix('v1')->group(function () {
     // Public Shop Browsing Routes
     Route::get('/categories', [CategoryController::class, 'index']);
     Route::get('/categories/{category}', [CategoryController::class, 'show']);
+<<<<<<<<< Temporary merge branch 1
     Route::get('/subcategories', [SubCategoryController::class, 'index']);
     Route::get('/subcategories/{subCategory}', [SubCategoryController::class, 'show']);
+=========
+    Route::get('/categories/{category}/subcategories', [SubcategoryController::class, 'getByCategory']);
+
+    Route::get('/subcategories', [SubcategoryController::class, 'index']);
+    Route::get('/subcategories/{subcategory}', [SubcategoryController::class, 'show']);
+
+>>>>>>>>> Temporary merge branch 2
     Route::get('/products', [ProductController::class, 'index']);
     Route::get('/products/{product}', [ProductController::class, 'show']);
 
@@ -65,12 +74,19 @@ Route::prefix('v1')->group(function () {
             Route::put('/categories/{category}', [CategoryController::class, 'update']);
             Route::delete('/categories/{category}', [CategoryController::class, 'destroy']);
 
-            // Admin Subcategory Management
+<<<<<<<<< Temporary merge branch 1
             Route::post('/subcategories', [SubCategoryController::class, 'store']);
             Route::put('/subcategories/{subCategory}', [SubCategoryController::class, 'update']);
             Route::delete('/subcategories/{subCategory}', [SubCategoryController::class, 'destroy']);
 
+=========
+            // Admin Subcategory Management
+            Route::post('/subcategories', [SubcategoryController::class, 'store']);
+            Route::put('/subcategories/{subcategory}', [SubcategoryController::class, 'update']);
+            Route::delete('/subcategories/{subcategory}', [SubcategoryController::class, 'destroy']);
+
             // Admin Product Management
+>>>>>>>>> Temporary merge branch 2
             Route::post('/products', [ProductController::class, 'store']);
             Route::put('/products/{product}', [ProductController::class, 'update']);
             Route::delete('/products/{product}', [ProductController::class, 'destroy']);

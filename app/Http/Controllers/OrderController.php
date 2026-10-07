@@ -10,6 +10,7 @@ use App\Models\Delivery;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
 {
@@ -261,6 +262,18 @@ class OrderController extends Controller
      */
     public function updateStatus(Request $request, Order $order)
     {
+        $user = $request->user();
+
+        if (! $user || ! $user->is_admin) {
+            Log::error('Forbidden attempt to update order status', [
+                'user_id' => $user?->id,
+                'order_id' => $order->id,
+                'requested_status' => $request->input('status'),
+            ]);
+
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+
         $validated = $request->validate([
             'order_status' => 'required|in:pending,confirmed,processing,ready_for_pickup,out_for_delivery,delivered,cancelled',
             'payment_status' => 'sometimes|in:pending,paid,failed,refunded'

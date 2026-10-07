@@ -113,6 +113,22 @@ Supports both authenticated users (via Bearer token) and guest shoppers (via `X-
 * **GET** `/cart`
 * **Headers:** `Authorization: Bearer <token>` OR `X-Session-ID: 7a8f9c12-...`
 * **Response (200 OK):**
+### Social Login / Register (Google / Facebook)
+- **Endpoint:** `/auth/social-login`
+- **Method:** `POST`
+- **Description:** Send the `access_token` you receive from Google or Facebook OAuth on the client side. The API will verify it and log the user in, or create a new user account if one doesn't exist.
+- **Request Body:**
+  ```json
+  {
+      "provider": "google", // or "facebook"
+      "token": "your_access_token_from_google_or_facebook"
+  }
+  ```
+
+### Forgot Password
+- **Endpoint:** `/auth/forgot-password`
+- **Method:** `POST`
+- **Request Body:**
   ```json
   {
       "session_id": "7a8f9c12-3456-4789-abcd-1234567890ef",
@@ -208,6 +224,17 @@ Supports both authenticated users (via Bearer token) and guest shoppers (via `X-
 
 ### Clear Cart
 * **DELETE** `/cart/clear`
+### Get All SubCategories
+- **Endpoint:** `/subcategories`
+- **Method:** `GET`
+
+### Get Single SubCategory
+- **Endpoint:** `/subcategories/{id}`
+- **Method:** `GET`
+
+### Get All Products
+- **Endpoint:** `/products`
+- **Method:** `GET`
 
 ### Preview Checkout Breakdown
 * **POST** `/cart/preview`
