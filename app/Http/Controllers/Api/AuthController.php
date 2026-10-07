@@ -21,7 +21,8 @@ class AuthController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'phone' => 'nullable|string|max:20',
-            'password' => 'required|string|min:8|confirmed'
+            'password' => 'required|string|min:8|confirmed',
+            'role' => 'required|in:user,admin'
         ]);
 
         $validated['name'] = trim($validated['name']);
@@ -34,7 +35,7 @@ class AuthController extends Controller
                 'email' => $validated['email'],
                 'phone' => $validated['phone'],
                 'password' => Hash::make($validated['password']),
-                'role' => 'user'
+                'role' => $validated['role']
             ]);
 
             $user->makeHidden(['password', 'remember_token']);

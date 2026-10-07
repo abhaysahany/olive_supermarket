@@ -15,13 +15,17 @@ class CategoryController extends Controller
 
     public function store(Request $request)
     {
-        try {
-            $validated = $request->validate([
-                'name' => 'required|string|max:255',
-                'description' => 'nullable|string',
-                'image' => 'nullable|string'
-            ]);
+        if ($request->has('name')) {
+            $request->merge(['name' => trim($request->input('name'))]);
+        }
 
+        $validated = $request->validate([
+            'name' => 'required|string|max:255|unique:categories,name',
+            'description' => 'nullable|string',
+            'image' => 'nullable|string'
+        ]);
+
+        try {
             $category = Category::create($validated);
 
             return response()->json([
@@ -50,13 +54,22 @@ class CategoryController extends Controller
 
     public function update(Request $request, Category $category)
     {
-        try {
-            $validated = $request->validate([
-                'name' => 'sometimes|string|max:255',
-                'description' => 'sometimes|nullable|string',
-                'image' => 'sometimes|nullable|string'
-            ]);
+        if ($request->has('name')) {
+            $request->merge(['name' => trim($request->input('name'))]);
+        }
 
+        $validated = $request->validate([
+            'name' => [
+                'sometimes',
+                'string',
+                'max:255',
+                \Illuminate\Validation\Rule::unique('categories', 'name')->ignore($category->id),
+            ],
+            'description' => 'sometimes|nullable|string',
+            'image' => 'sometimes|nullable|string'
+        ]);
+
+        try {
             $category->update($validated);
 
             return response()->json([
