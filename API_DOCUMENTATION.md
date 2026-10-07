@@ -1,6 +1,6 @@
 # Olivia Supermarket — REST API Documentation
 
-**Base URL:** `http://127.0.0.1:8000/api/v1`
+**Base URL:** `https://webtesting.bond/api/v1`
 
 ---
 
@@ -38,7 +38,8 @@ X-Session-ID: <uuid_or_custom_guest_id>
       "email": "michael@example.com",
       "phone": "+15125550142",
       "password": "password123",
-      "password_confirmation": "password123"
+      "password_confirmation": "password123",
+      "role": "user"
   }
   ```
 - **Response (201 Created):**
@@ -381,14 +382,45 @@ All admin routes require `Authorization: Bearer <token>` where the user's role i
 
 ### Category Management
 - **Create Category:** `POST /api/v1/admin/categories`
-  - Body: `{"name": "Bakery", "description": "Fresh artisan breads", "image": "https://..."}`
+  - **Request Body:**
+    ```json
+    {
+        "name": "Bakery",
+        "description": "Fresh artisan breads & baked goods",
+        "image": "https://example.com/bakery.jpg"
+    }
+    ```
 - **Update Category:** `PUT /api/v1/admin/categories/{id}`
+  - **Request Body** *(All fields optional for partial updates)*:
+    ```json
+    {
+        "name": "Bakery & Pastries",
+        "description": "Fresh artisan breads, croissants & cakes",
+        "image": "https://example.com/bakery-updated.jpg"
+    }
+    ```
 - **Delete Category:** `DELETE /api/v1/admin/categories/{id}`
 
 ### Subcategory Management
 - **Create Subcategory:** `POST /api/v1/admin/subcategories`
-  - Body: `{"category_id": 1, "name": "Artisan Breads", "description": "Sourdough, baguettes", "image": "https://..."}`
+  - **Request Body:**
+    ```json
+    {
+        "category_id": 1,
+        "name": "Artisan Breads",
+        "description": "Sourdough, baguettes",
+        "image": "https://example.com/breads.jpg"
+    }
+    ```
 - **Update Subcategory:** `PUT /api/v1/admin/subcategories/{id}`
+  - **Request Body** *(All fields optional for partial updates)*:
+    ```json
+    {
+        "name": "Artisan & Organic Breads",
+        "description": "Updated sourdough varieties",
+        "image": "https://example.com/breads-updated.jpg"
+    }
+    ```
 - **Delete Subcategory:** `DELETE /api/v1/admin/subcategories/{id}`
 
 ### Product Management
