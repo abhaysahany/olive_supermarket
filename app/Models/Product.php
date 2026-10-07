@@ -10,12 +10,7 @@ class Product extends Model
     use HasFactory;
 
     protected $fillable = [
-<<<<<<<<< Temporary merge branch 1
-        'category_id', 'sub_category_id', 'name', 'slug', 'description', 
-        'size', 'short_size', 'price', 'old_price', 'save_pct', 
-        'stock', 'image', 'emoji', 'tint', 'tag', 'rating', 
-        'reviews_count', 'local'
-=========
+        'category_id',
         'subcategory_id',
         'sub_category_id',
         'name',
@@ -47,8 +42,7 @@ class Product extends Model
         'is_perishable',
         'nutrition_facts',
         'ingredients',
-        'status'
->>>>>>>>> Temporary merge branch 2
+        'status',
     ];
 
     protected function casts(): array
