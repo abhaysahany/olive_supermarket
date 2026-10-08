@@ -40,13 +40,34 @@ class SubCategoryController extends Controller
         }
     }
 
-    public function show(SubCategory $subCategory)
+    public function show($id)
     {
-        return response()->json(['data' => $subCategory->load('category')], 200);
+        $subCategory = $id instanceof SubCategory ? $id : SubCategory::find($id);
+
+        if (!$subCategory) {
+            return response()->json([
+                'success' => false,
+                'message' => "This Subcategory does not exist."
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $subCategory->load('category')
+        ], 200);
     }
 
-    public function update(Request $request, SubCategory $subCategory)
+    public function update(Request $request, $id)
     {
+        $subCategory = $id instanceof SubCategory ? $id : SubCategory::find($id);
+
+        if (!$subCategory) {
+            return response()->json([
+                'success' => false,
+                'message' => "This Subcategory does not exist."
+            ], 404);
+        }
+
         try {
             $validated = $request->validate([
                 'category_id' => 'sometimes|exists:categories,id',
@@ -61,7 +82,17 @@ class SubCategoryController extends Controller
 
             $subCategory->update($validated);
 
-            return response()->json(['message' => 'SubCategory updated', 'data' => $subCategory], 200);
+            return response()->json([
+                'success' => true,
+                'message' => 'SubCategory updated successfully',
+                'data' => $subCategory
+            ], 200);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation error',
+                'errors' => $e->errors()
+            ], 422);
         } catch (\Throwable $e) {
             Log::error('SubCategory update failed', [
                 'sub_category_id' => $subCategory->id,
@@ -69,13 +100,41 @@ class SubCategoryController extends Controller
                 'error' => $e->getMessage(),
             ]);
 
-            return response()->json(['message' => 'SubCategory update failed'], 500);
+            return response()->json([
+                'success' => false,
+                'message' => 'SubCategory update failed: ' . $e->getMessage()
+            ], 500);
         }
     }
 
-    public function destroy(SubCategory $subCategory)
+    public function destroy($id)
     {
-        $subCategory->delete();
-        return response()->json(['message' => 'SubCategory deleted', 'data' => $subCategory], 200);
+        $subCategory = $id instanceof SubCategory ? $id : SubCategory::find($id);
+
+        if (!$subCategory) {
+            return response()->json([
+                'success' => false,
+                'message' => "This Subcategory does not exist."
+            ], 404);
+        }
+
+        try {
+            $subCategory->delete();
+            return response()->json([
+                'success' => true,
+                'message' => 'SubCategory deleted successfully',
+                'data' => $subCategory
+            ], 200);
+        } catch (\Throwable $e) {
+            Log::error('SubCategory delete failed', [
+                'sub_category_id' => $subCategory->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'SubCategory delete failed: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }
