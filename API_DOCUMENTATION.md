@@ -1,6 +1,6 @@
 # Olivia Supermarket — REST API Documentation
 
-**Base URL:** `https://webtesting.bond/api/v1`
+**Base URL:** `https://webtesting.bond`
 
 ---
 

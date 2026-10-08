@@ -10,7 +10,7 @@ class CategoryController extends Controller
 {
     public function index()
     {
-        return response()->json(Category::with('subcategories')->get(), 200);
+        return response()->json(Category::with('sub_categories')->get(), 200);
     }
 
     public function store(Request $request)
@@ -49,7 +49,7 @@ class CategoryController extends Controller
 
     public function show(Category $category)
     {
-        return response()->json($category->load('subcategories'), 200);
+        return response()->json($category->load('sub_categories'), 200);
     }
 
     public function update(Request $request, Category $category)
