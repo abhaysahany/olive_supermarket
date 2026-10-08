@@ -93,6 +93,7 @@ Route::prefix('v1')->group(function () {
             
             // User Orders & Checkout
             Route::get('/orders', [OrderController::class, 'index']);
+            Route::get('/orders/recent', [OrderController::class, 'recent']);
             Route::post('/orders', [OrderController::class, 'store']);
             Route::get('/orders/{order}', [OrderController::class, 'show']);
             Route::get('/orders/{order}/track-delivery', [OrderController::class, 'trackDelivery']);

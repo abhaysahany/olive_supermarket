@@ -71,7 +71,8 @@ For clarity and frontend/backend team collaboration, the documentation is divide
 - `GET /api/v1/tracking/{tracking_number}` — Public live tracking
 
 ### 3. Customer Operations ([Full Guide](docs/USER_API.md))
-- `GET /api/v1/user/profile` — User profile & order count
+- `GET /api/v1/user/profile` — User profile, total order count & 5 recent orders
+- `GET /api/v1/user/orders/recent` — Dedicated 5-10 recent orders for dashboard / reordering
 - `POST /api/v1/user/orders` — Place order / checkout
 - `GET /api/v1/user/orders` — Customer order history (paginated)
 - `GET /api/v1/user/orders/{id}` — Single order details

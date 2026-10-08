@@ -17,8 +17,17 @@ class UserController extends Controller
             ], 401);
         }
 
+        $totalOrdersCount = $user->orders()->count();
+        $recentOrders = $user->orders()
+            ->with(['items.product', 'delivery'])
+            ->latest()
+            ->take(5)
+            ->get();
+
         return response()->json([
-            'user' => $user
+            'user' => $user,
+            'total_orders_count' => $totalOrdersCount,
+            'recent_orders' => $recentOrders,
         ]);
     }
 }

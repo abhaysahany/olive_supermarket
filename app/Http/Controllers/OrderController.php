@@ -29,6 +29,28 @@ class OrderController extends Controller
     }
 
     /**
+     * Display authenticated user's recent orders (5-10 orders for dashboard/login overview).
+     */
+    public function recent(Request $request)
+    {
+        $limit = (int) $request->query('limit', 5);
+        $limit = max(1, min($limit, 20));
+
+        $orders = $request->user()
+            ->orders()
+            ->with(['items.product', 'delivery'])
+            ->latest()
+            ->take($limit)
+            ->get();
+
+        return response()->json([
+            'status' => 'success',
+            'count' => $orders->count(),
+            'data' => $orders,
+        ], 200);
+    }
+
+    /**
      * Place a new supermarket order / Checkout.
      */
     public function store(Request $request)

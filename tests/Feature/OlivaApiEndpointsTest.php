@@ -258,7 +258,15 @@ class OlivaApiEndpointsTest extends TestCase
     {
         $profileRes = $this->actingAs($this->user, 'sanctum')->getJson('/api/v1/user/profile');
         $profileRes->assertStatus(200)
-            ->assertJsonFragment(['email' => 'john@example.com']);
+            ->assertJsonFragment(['email' => 'john@example.com'])
+            ->assertJsonStructure(['user', 'total_orders_count', 'recent_orders']);
+    }
+
+    public function test_user_recent_orders()
+    {
+        $recentRes = $this->actingAs($this->user, 'sanctum')->getJson('/api/v1/user/orders/recent?limit=5');
+        $recentRes->assertStatus(200)
+            ->assertJsonStructure(['status', 'count', 'data']);
     }
 
     /* -------------------------------------------------------------
