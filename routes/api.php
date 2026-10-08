@@ -22,6 +22,7 @@ Route::prefix('v1')->group(function () {
         Route::post('/social-login', [AuthController::class, 'socialLogin']);
         Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
         Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+        Route::match(['get', 'post'], '/validate-reset-token', [AuthController::class, 'validateResetToken']);
     });
 
     // Public Shop Browsing Routes

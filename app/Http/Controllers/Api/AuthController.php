@@ -22,12 +22,13 @@ class AuthController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'phone' => 'nullable|string|max:20',
             'password' => 'required|string|min:8|confirmed',
-            'role' => 'required|in:user,admin'
+            'role' => 'nullable|in:user,admin'
         ]);
 
         $validated['name'] = trim($validated['name']);
         $validated['email'] = strtolower(trim($validated['email']));
         $validated['phone'] = ! empty($validated['phone']) ? trim($validated['phone']) : null;
+        $validated['role'] = $validated['role'] ?? 'user';
 
         try {
             $user = User::create([
@@ -180,6 +181,44 @@ class AuthController extends Controller
 
             return response()->json(['message' => 'Unable to reset password'], 500);
         }
+    }
+
+    public function validateResetToken(Request $request)
+    {
+        $email = strtolower(trim($request->input('email', '')));
+        $token = (string) $request->input('token', '');
+
+        $request->merge(['email' => $email]);
+
+        $request->validate([
+            'token' => 'required|string',
+            'email' => 'required|email',
+        ]);
+
+        $user = User::where('email', $email)->first();
+
+        if (! $user) {
+            return response()->json([
+                'valid' => false,
+                'message' => 'No user account found with this email address.'
+            ], 404);
+        }
+
+        $isValid = Password::tokenExists($user, $token);
+
+        if (! $isValid) {
+            return response()->json([
+                'valid' => false,
+                'message' => 'This password reset link is invalid or has expired.'
+            ], 400);
+        }
+
+        return response()->json([
+            'valid' => true,
+            'message' => 'Reset token is valid.',
+            'email' => $user->email,
+            'name' => $user->name,
+        ], 200);
     }
 
     public function socialLogin(Request $request)
