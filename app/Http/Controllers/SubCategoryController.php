@@ -22,7 +22,7 @@ class SubCategoryController extends Controller
             $validated = $request->validate([
                 'category_id' => 'required|exists:categories,id',
                 'name' => 'required|string|max:255',
-                'slug' => 'nullable|string|max:255|unique:subcategories,slug',
+                'slug' => 'nullable|string|max:255|unique:sub_categories,slug',
                 'description' => 'nullable|string',
                 'image' => 'nullable|string'
             ]);
@@ -52,7 +52,7 @@ class SubCategoryController extends Controller
             $validated = $request->validate([
                 'category_id' => 'sometimes|exists:categories,id',
                 'name' => 'sometimes|string|max:255',
-                'slug' => 'sometimes|string|max:255|unique:subcategories,slug,' . $subCategory->id,
+                'slug' => 'sometimes|string|max:255|unique:sub_categories,slug,' . $subCategory->id,
                 'description' => 'nullable|string',
                 'image' => 'nullable|string'
             ]);
