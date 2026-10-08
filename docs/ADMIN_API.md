@@ -108,8 +108,7 @@ Returns registered users with roles and contact numbers.
     "category_id": 1,
     "name": "Artisan Sourdough & Loaves",
     "slug": "artisan-sourdough-loaves",
-    "description": "Freshly baked sourdough and baguettes",
-    "image": "https://..."
+    "description": "Freshly baked sourdough and baguettes"
 }
 ```
 - **Response (`201 Created`)**
@@ -121,8 +120,10 @@ Returns registered users with roles and contact numbers.
 - **Request Body:**
 ```json
 {
-    "name": "Artisan & Organic Breads",
-    "description": "Updated sourdough varieties"
+    "category_id": "Change id",
+    "name": "Change Name",
+    "slug": "Change Slug",
+    "description": "Change description"
 }
 ```
 - **Response (`200 OK`)**
