@@ -26,4 +26,34 @@ return Application::configure(basePath: dirname(__DIR__))
                 ], 401);
             }
         });
+
+        $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\NotFoundHttpException $e, \Illuminate\Http\Request $request) {
+            if ($request->is('api/*') || $request->expectsJson()) {
+                $previous = $e->getPrevious();
+                if ($previous instanceof \Illuminate\Database\Eloquent\ModelNotFoundException) {
+                    $modelClass = class_basename($previous->getModel());
+                    $ids = implode(', ', (array) $previous->getIds());
+                    return response()->json([
+                        'success' => false,
+                        'message' => "This {$modelClass} does not exist."
+                    ], 404);
+                }
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'The requested endpoint or resource was not found.'
+                ], 404);
+            }
+        });
+
+        $exceptions->render(function (\Illuminate\Database\Eloquent\ModelNotFoundException $e, \Illuminate\Http\Request $request) {
+            if ($request->is('api/*') || $request->expectsJson()) {
+                $modelClass = class_basename($e->getModel());
+                $ids = implode(', ', (array) $e->getIds());
+                return response()->json([
+                    'success' => false,
+                    'message' => "This {$modelClass} does not exist."
+                ], 404);
+            }
+        });
     })->create();
